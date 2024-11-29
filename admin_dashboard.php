@@ -88,7 +88,12 @@ if ($_SESSION['role'] !== 'admin') {
 <body>
     <div class="container">
         <h1>Dashboard Admin</h1>
-        <a href="logout.php">Logout</a>
+        <nav>
+    <a href="admin_dashboard.php">Dashboard Admin</a> | 
+    <a href="riwayat_peminjaman.php">Riwayat Peminjaman</a> | 
+    <a href="logout.php">Logout</a>
+        </nav>
+
 
         <h2>Tambah Buku</h2>
         <form method="POST" enctype="multipart/form-data">
