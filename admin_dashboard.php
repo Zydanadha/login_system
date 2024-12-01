@@ -91,19 +91,11 @@ if ($_SESSION['role'] !== 'admin') {
         <nav>
     <a href="admin_dashboard.php">Dashboard Admin</a> | 
     <a href="riwayat_peminjaman.php">Riwayat Peminjaman</a> | 
-    <a href="logout.php">Logout</a>
+    <a href="tambah_buku.php">Tambah buku</a> | 
+    <a href="logout.php">Logout</a> | 
+    <a href="tambah_user.php">data penguna</a> 
         </nav>
 
-
-        <h2>Tambah Buku</h2>
-        <form method="POST" enctype="multipart/form-data">
-            <input type="text" name="judul" placeholder="Judul Buku" required>
-            <input type="text" name="penulis" placeholder="Penulis Buku" required>
-            <input type="text" name="penerbit" placeholder="Penerbit">
-            <input type="number" name="tahun" placeholder="Tahun Terbit">
-            <input type="file" name="cover">
-            <button type="submit" name="submit">Tambah Buku</button>
-        </form>
 
         <?php
         if (isset($_POST['submit'])) {
@@ -120,7 +112,7 @@ if ($_SESSION['role'] !== 'admin') {
             }
 
             $upload_path = "uploads/" . $cover;
-
+ 
             if (move_uploaded_file($cover_tmp, $upload_path)) {
                 $query = "INSERT INTO books (judul, penulis, penerbit, tahun, cover) VALUES ('$judul', '$penulis', '$penerbit', '$tahun', '$cover')";
                 if ($conn->query($query)) {

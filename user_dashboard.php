@@ -118,25 +118,48 @@ if (isset($_GET['search'])) {
         button:hover {
             background-color: #0056b3;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+        .book-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
         }
-        table, th, td {
+        .book-card {
             border: 1px solid #ddd;
-        }
-        th, td {
-            padding: 12px;
+            border-radius: 10px;
+            padding: 20px;
+            width: 250px;
             text-align: center;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        th {
+        .book-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .book-card h3 {
+            margin: 10px 0;
+            font-size: 1.2em;
+            color: #333;
+        }
+        .book-card p {
+            margin: 5px 0;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .book-card a {
+            display: block;
+            margin-top: 15px;
+            padding: 10px;
             background-color: #007bff;
             color: white;
-        }
-        img {
-            max-width: 50px;
+            text-decoration: none;
             border-radius: 5px;
+        }
+        .book-card a:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
@@ -151,41 +174,30 @@ if (isset($_GET['search'])) {
 
             <form method="GET">
                 <input type="text" name="search" placeholder="Cari buku berdasarkan judul..." value="<?php echo htmlspecialchars($searchQuery); ?>">
-                <button type="submit">Cari</button>
-                <a href="user_dashboard.php" class="reset-btn">Reset</a>
+                <button type="submit">Cari</button>  <a href="user_dashboard.php" class="reset-btn">Reset</a>
             </form>
 
-            <table>
-                <tr>
-                    <th>No</th>
-                    <th>Judul</th>
-                    <th>Penulis</th>
-                    <th>Penerbit</th>
-                    <th>Tahun</th>
-                    <th>Cover</th>
-                    <th>Peminjaman</th>
-                </tr>
-                <?php
-                $no = 1;
-                if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        echo "<tr>";
-                        echo "<td>" . $no++ . "</td>";
-                        echo "<td>" . htmlspecialchars($row['judul']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['penulis']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['penerbit']) . "</td>";
-                        echo "<td>" . (int)$row['tahun'] . "</td>";
-                        echo "<td><img src='uploads/" . htmlspecialchars($row['cover']) . "' alt='Cover'></td>";
-                        echo "<td>";
-                        echo "<a href='user_dashboard.php?book_id=" . $row['id'] . "' style='padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;'>Pinjam Buku</a>";
-                        echo "</td>";
-                        echo "</tr>";
-                    }
-                } else {
-                    echo "<tr><td colspan='7'>Buku tidak ditemukan.</td></tr>";
-                }
-                ?>
-            </table>
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+    <?php
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            ?>
+            <div style="border: 1px solid #ddd; border-radius: 10px; padding: 20px; width: 250px; text-align: center; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                <img src="uploads/<?php echo htmlspecialchars($row['cover']); ?>" alt="Cover" style="width: 100%; height: auto; border-radius: 5px; margin-bottom: 15px;">
+                <h3><?php echo htmlspecialchars($row['judul']); ?></h3>
+                <p>Penulis: <?php echo htmlspecialchars($row['penulis']); ?></p>
+                <p>Penerbit: <?php echo htmlspecialchars($row['penerbit']); ?></p>
+                <p>Tahun: <?php echo (int)$row['tahun']; ?></p>
+                <a href="user_dashboard.php?book_id=<?php echo $row['id']; ?>" style="display: block; margin-top: 15px; padding: 10px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Pinjam Buku</a>
+            </div>
+            <?php
+        }
+    } else {
+        echo "<p>Buku tidak ditemukan.</p>";
+    }
+    ?>
+</div>
+
         <?php else: ?>
             <!-- Bagian Form Peminjaman -->
             <h2>Form Peminjaman Buku</h2>
