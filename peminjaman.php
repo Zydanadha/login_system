@@ -2,23 +2,20 @@
 session_start();
 include 'db.php';
 
-// Cek apakah user sudah login
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
+// Pastikan session user_id ada
+if (!isset($_SESSION['user_id'])) {
+    // Jika tidak ada, arahkan ke halaman login
     header('Location: login.php');
     exit();
 }
 
-if (!isset($_SESSION['user_id'])) {
-    echo "<script>alert('User ID tidak ditemukan. Silakan login kembali.');</script>";
-    header('Location: logout.php');
-    exit();
-}
+$user_id = $_SESSION['user_id']; // Ambil user_id dari session
 
-// Ambil book_id dari URL
+// Ambil book_id dari URL, pastikan valid
 $book_id = isset($_GET['book_id']) ? intval($_GET['book_id']) : 0;
-
-// Ambil informasi buku untuk ditampilkan (opsional)
 $judul_buku = '';
+
+// Ambil informasi buku jika book_id valid
 if ($book_id > 0) {
     $stmt = $conn->prepare("SELECT judul FROM books WHERE id = ?");
     $stmt->bind_param("i", $book_id);
@@ -28,30 +25,30 @@ if ($book_id > 0) {
     $stmt->close();
 }
 
-// Proses peminjaman buku
+// Proses form peminjaman buku
 if (isset($_POST['submit_peminjaman'])) {
-    $user_id = $_SESSION['user_id'];
+    // Ambil data dari form
     $nama = $_POST['nama'];
     $kelas = $_POST['kelas'];
-    $tanggal_peminjaman = date('Y-m-d');
     $tanggal_kembali = $_POST['tanggal_kembali'];
+    $tanggal_peminjaman = date('Y-m-d');
     $status = 'terpinjam';
 
     // Validasi form
-    if (empty($nama) || empty($kelas) || empty($tanggal_kembali)) {
-        echo "<script>alert('Semua field wajib diisi.');</script>";
-    } else {
-        // Menggunakan prepared statement untuk keamanan
+    if (!empty($nama) && !empty($kelas) && !empty($tanggal_kembali)) {
+        // Query untuk insert peminjaman
         $stmt = $conn->prepare("INSERT INTO peminjaman (user_id, book_id, nama, kelas, tanggal_peminjaman, tanggal_kembali, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $stmt->bind_param("iisssss", $user_id, $book_id, $nama, $kelas, $tanggal_peminjaman, $tanggal_kembali, $status);
 
+        // Eksekusi query
         if ($stmt->execute()) {
-            echo "<script>alert('Buku berhasil dipinjam!'); window.location.href = 'user_dashboard.php';</script>";
+            echo "<script>alert('Buku berhasil dipinjam!'); window.location.href = 'riwayat_peminjaman.php';</script>";
         } else {
             echo "<script>alert('Error: " . $stmt->error . "');</script>";
         }
-
         $stmt->close();
+    } else {
+        echo "<script>alert('Semua field wajib diisi.');</script>";
     }
 }
 ?>

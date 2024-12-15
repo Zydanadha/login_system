@@ -2,39 +2,22 @@
 session_start();
 include 'db.php';
 
-// Cek jika user adalah admin
+// Cek apakah admin sudah login
 if ($_SESSION['role'] !== 'admin') {
     header('Location: login.php');
     exit();
 }
 
-// Proses peminjaman buku (jika form dipost)
-if (isset($_POST['submit_peminjaman'])) {
-    $user_id = $_POST['user_id'];
-    $book_id = $_POST['book_id'];
-    $nama_peminjam = $_POST['nama_peminjam'];
-    $kelas = $_POST['kelas'];
-    $tanggal_peminjaman = date('Y-m-d');
-    $tanggal_kembali = $_POST['tanggal_kembali'];
-    $status = 'terpinjam';
+// Menampilkan riwayat peminjaman dari semua user
+$query = "SELECT p.*, b.judul, u.username FROM peminjaman p 
+          JOIN books b ON p.book_id = b.id
+          JOIN user u ON p.user_id = u.id";
+$result = $conn->query($query);
 
-    if (empty($tanggal_kembali)) {
-        echo "<script>alert('Tanggal kembali tidak boleh kosong.');</script>";
-    } else {
-        // Menggunakan prepared statement untuk keamanan
-        $stmt = $conn->prepare("INSERT INTO peminjaman (user_id, book_id, nama_peminjam, kelas, tanggal_peminjaman, tanggal_kembali, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("iisssss", $user_id, $book_id, $nama_peminjam, $kelas, $tanggal_peminjaman, $tanggal_kembali, $status);
-
-        if ($stmt->execute()) {
-            echo "<script>alert('Buku berhasil dipinjam!');</script>";
-        } else {
-            echo "<script>alert('Error: " . $stmt->error . "');</script>";
-        }
-
-        $stmt->close();
-    }
+// Cek apakah query berhasil dijalankan
+if (!$result) {
+    die("Query failed: " . $conn->error);
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -80,8 +63,7 @@ if (isset($_POST['submit_peminjaman'])) {
     <div class="container">
         <a href="admin_dashboard.php" style="text-decoration: none; color: #007bff; font-weight: bold;">&larr; Kembali ke Dashboard Admin</a>
 
-        <!-- Tabel Riwayat Peminjaman -->
-        <h2>Riwayat Peminjaman</h2>
+        <h2>Riwayat Peminjaman Buku</h2>
         <table>
             <tr>
                 <th>No</th>
@@ -92,22 +74,19 @@ if (isset($_POST['submit_peminjaman'])) {
                 <th>Status</th>
             </tr>
             <?php
-            // Menampilkan riwayat peminjaman
-            $result = $conn->query("SELECT p.*, b.judul FROM peminjaman p JOIN books b ON p.book_id = b.id");
             $no = 1;
             while ($row = $result->fetch_assoc()) {
                 echo "<tr>";
                 echo "<td>" . $no++ . "</td>";
-                echo "<td>" . htmlspecialchars($row['nama_peminjam']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['judul']) . "</td>";
-                echo "<td>" . $row['tanggal_peminjaman'] . "</td>";
-                echo "<td>" . $row['tanggal_kembali'] . "</td>";
-                echo "<td>" . $row['status'] . "</td>";
+                echo "<td>" . (isset($row['username']) ? htmlspecialchars($row['username']) : 'Data tidak ada') . "</td>";
+                echo "<td>" . (isset($row['judul']) ? htmlspecialchars($row['judul']) : 'Data tidak ada') . "</td>";
+                echo "<td>" . (isset($row['tanggal_peminjaman']) ? htmlspecialchars($row['tanggal_peminjaman']) : 'Data tidak ada') . "</td>";
+                echo "<td>" . (isset($row['tanggal_kembali']) ? htmlspecialchars($row['tanggal_kembali']) : 'Data tidak ada') . "</td>";
+                echo "<td>" . (isset($row['status']) ? htmlspecialchars($row['status']) : 'Data tidak ada') . "</td>";
                 echo "</tr>";
             }
             ?>
         </table>
     </div>
 </body>
-
 </html>

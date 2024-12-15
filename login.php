@@ -1,35 +1,35 @@
 <?php
 session_start();
-include 'db.php'; // File koneksi ke database
+include 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];
-    $password = md5($_POST['password']); // Pastikan untuk mengganti ini dengan hash yang lebih aman seperti password_hash
+    $password = $_POST['password'];
 
-    // Cek di tabel admin
-    $queryAdmin = "SELECT * FROM admin WHERE username = '$username' AND password = '$password'";
-    $resultAdmin = mysqli_query($conn, $queryAdmin);
+    $stmt = $conn->prepare("SELECT username, password, role FROM user WHERE username = ?");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    if (mysqli_num_rows($resultAdmin) > 0) {
-        $_SESSION['role'] = 'admin';
-        $_SESSION['username'] = $username;
-        header('Location: admin_dashboard.php');
-        exit();
+    if ($result->num_rows > 0) {
+        $user = $result->fetch_assoc();
+
+        if (password_verify($password, $user['password'])) {
+            $_SESSION['role'] = $user['role'];
+            $_SESSION['username'] = $username;
+
+            if ($user['role'] === 'admin') {
+                header('Location: admin_dashboard.php');
+            } else {
+                header('Location: user_dashboard.php');
+            }
+            exit();
+        } else {
+            echo "<p>Password salah!</p>";
+        }
+    } else {
+        echo "<p>Username tidak ditemukan!</p>";
     }
-
-    // Cek di tabel user
-    $queryUser = "SELECT * FROM user WHERE username = '$username' AND password = '$password'";
-    $resultUser = mysqli_query($conn, $queryUser);
-
-    if (mysqli_num_rows($resultUser) > 0) {
-        $_SESSION['role'] = 'user';
-        $_SESSION['username'] = $username;
-        header('Location: user_dashboard.php');
-        exit();
-    }
-
-    // Jika login gagal
-    echo "<p>Username atau password salah!</p>";
 }
 ?>
 

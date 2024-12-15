@@ -2,10 +2,15 @@
 session_start();
 include 'db.php';
 
+// Cek apakah user sudah login dan merupakan admin
 if ($_SESSION['role'] !== 'admin') {
     header('Location: login.php');
     exit();
 }
+
+// Ambil semua user
+$result = $conn->query("SELECT * FROM user");
+
 ?>
 
 <!DOCTYPE html>
@@ -93,7 +98,7 @@ if ($_SESSION['role'] !== 'admin') {
     <a href="riwayat_peminjaman.php">Riwayat Peminjaman</a> | 
     <a href="tambah_buku.php">Tambah buku</a> | 
     <a href="logout.php">Logout</a> | 
-    <a href="tambah_user.php">data penguna</a> 
+    <a href="data_penguna.php">data penguna</a> 
         </nav>
 
 
