@@ -6,28 +6,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $stmt = $conn->prepare("SELECT username, password, role FROM user WHERE username = ?");
-    $stmt->bind_param("s", $username);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    // Array untuk menyimpan tabel yang akan diperiksa
+    $tables = ['admin', 'owner', 'user'];
+    $userFound = false;
 
-    if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc();
+    foreach ($tables as $table) {
+        $stmt = $conn->prepare("SELECT username, password, role FROM $table WHERE username = ?");
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-        if (password_verify($password, $user['password'])) {
-            $_SESSION['role'] = $user['role'];
-            $_SESSION['username'] = $username;
-
-            if ($user['role'] === 'admin') {
-                header('Location: admin_dashboard.php');
+        if ($result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+            if (password_verify($password, $user['password'])) {
+                $_SESSION['role'] = $user['role'];
+                $_SESSION['username'] = $user['username'];
+                
+                // Redirect berdasarkan role
+                if ($user['role'] === 'admin') {
+                    header('Location: admin_dashboard.php');
+                } elseif ($user['role'] === 'owner') {
+                    header('Location: owner_dashboard.php');
+                } else {
+                    header('Location: user_dashboard.php');
+                }
+                $userFound = true;
+                exit();
             } else {
-                header('Location: user_dashboard.php');
+                echo "<p>Password salah!</p>";
+                $userFound = true;
+                break;
             }
-            exit();
-        } else {
-            echo "<p>Password salah!</p>";
         }
-    } else {
+    }
+
+    if (!$userFound) {
         echo "<p>Username tidak ditemukan!</p>";
     }
 }

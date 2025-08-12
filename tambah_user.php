@@ -93,6 +93,7 @@ if (isset($_POST['add_user'])) {
                     <option value="">Pilih Role</option>
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
+                    <option value="owner">owner</option>
                 </select>
             </div>
             <button type="submit" name="add_user" class="btn btn-primary">Tambah</button>

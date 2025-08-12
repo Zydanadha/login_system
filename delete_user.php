@@ -12,7 +12,7 @@ if (isset($_GET['id'])) {
     $user_id = $_GET['id'];
 
     // Hapus data peminjaman yang terkait dengan user
-    $stmt = $conn->prepare("DELETE FROM peminjaman WHERE user_id = ?");
+    $stmt = $conn->prepare("DELETE    FROM peminjaman WHERE user_id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $stmt->close();
