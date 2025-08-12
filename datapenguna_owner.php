@@ -52,6 +52,7 @@ $users = $conn->query("SELECT id, username, role, password FROM user WHERE role 
     <table>
         <tr>
             <th>ID</th>
+              <th>password</th>
               <th>Username</th>
             <th>Role</th>
                     

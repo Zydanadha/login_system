@@ -128,7 +128,7 @@ button:active {
 }
 
 p {
-    color: red;
+    color: blueviolet;
     font-size: 14px;
     margin-top: 15px;
     font-weight: 500;
